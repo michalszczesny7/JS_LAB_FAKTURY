@@ -57,7 +57,9 @@ PYTHONPATH=src python3 -m pytest
 - dashboard KPI dla zatwierdzonych faktur,
 - import faktur z CSV i XLSX z podglądem oraz ręcznym mapowaniem kolumn,
 - walidacja importu, wykrywanie duplikatów i raport końcowy,
-- opcjonalne tworzenie brakujących kontrahentów i inwestycji.
+- opcjonalne tworzenie brakujących kontrahentów i inwestycji,
+- raporty okresowe z filtrami i zestawieniami grupowymi,
+- eksport aktywnego raportu do CSV oraz wieloarkuszowego XLSX.
 
 ## Import CSV i Excel
 
@@ -89,12 +91,35 @@ a pusty VAT przyjmuje wartość `0`. Kwoty ujemne są błędem, ponieważ obecny
 model faktury nie dopuszcza ich do zapisu. Duplikaty w pliku i bazie są
 domyślnie pomijane.
 
+## Raporty i eksport
+
+Strona Raporty pozwala filtrować faktury według zakresu dat, inwestycji,
+kontrahenta, kategorii, typu faktury, statusu faktury i statusu płatności.
+Miękko usunięte faktury są domyślnie ukryte i można je dołączyć osobną opcją.
+
+Po ustawieniu filtrów wybierz `Odśwież raport`. Widok pokaże KPI oraz tabele:
+
+- pełną listę faktur,
+- zestawienie według inwestycji,
+- zestawienie według kontrahentów,
+- zestawienie miesięczne,
+- zestawienie według statusu.
+
+Przycisk `Pobierz CSV` zapisuje pełną listę faktur po aktywnych filtrach w
+UTF-8, z separatorem średnikowym. Daty mają format `YYYY-MM-DD`, a kwoty są
+eksportowane jako wartości liczbowe.
+
+Przycisk `Pobierz XLSX` tworzy skoroszyt z arkuszami `Faktury`,
+`Podsumowanie`, `Według inwestycji`, `Według kontrahentów`, `Miesięcznie` i
+`Według statusu`. Arkusze mają filtry, zamrożone nagłówki, formatowanie dat i
+kwot oraz wykres wartości brutto według statusu w podsumowaniu.
+
 ## Znane ograniczenia
 
 - brak uwierzytelniania i obsługi wielu użytkowników,
 - lokalna baza SQLite bez migracji schematu,
 - brak obsługi starego formatu XLS, OCR i AI,
-- brak eksportu i zaawansowanych raportów,
+- brak harmonogramów i automatycznej wysyłki raportów,
 - import działa na pierwszym arkuszu pliku XLSX,
 - import nie jest jedną transakcją: poprawne wiersze zapisują się niezależnie,
 - kwoty są obecnie przechowywane jako `float`, co nie jest docelowym

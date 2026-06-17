@@ -19,3 +19,9 @@
 - [ ] Włącz automatyczne tworzenie brakujących kontrahentów i inwestycji.
 - [ ] Wykonaj import i porównaj raport z liczbą wierszy w pliku.
 - [ ] Powtórz import dla pliku XLSX z tymi samymi danymi.
+- [ ] Otwórz stronę Raporty i odśwież raport bez filtrów.
+- [ ] Sprawdź KPI oraz wszystkie pięć tabel raportowych.
+- [ ] Ustaw zakres dat i każdy filtr słownikowy osobno.
+- [ ] Włącz uwzględnianie miękko usuniętych faktur.
+- [ ] Pobierz CSV i sprawdź, czy zawiera tylko widoczne faktury.
+- [ ] Pobierz XLSX i sprawdź sześć arkuszy, formaty dat oraz kwot.
