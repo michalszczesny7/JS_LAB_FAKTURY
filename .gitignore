@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments and local configuration
+.venv/
+venv/
+.env
+.env.*
+!.env.example
+
+# Local application data
+*.db
+*.db-shm
+*.db-wal
+
+# Editors and operating systems
+.idea/
+.vscode/
+.DS_Store
+
+# Streamlit local settings
+.streamlit/secrets.toml

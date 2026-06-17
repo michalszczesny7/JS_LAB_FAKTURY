@@ -1,2 +1,2 @@
-pytest>=7.4
-streamlit>=1.40
+openpyxl>=3.1,<4.0
+streamlit>=1.40,<2.0

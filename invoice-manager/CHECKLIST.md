@@ -1,0 +1,21 @@
+# Checklista testu ręcznego
+
+- [ ] Uruchom aplikację poleceniem `PYTHONPATH=src streamlit run app.py`.
+- [ ] Otwórz stronę Dashboard i sprawdź stan pusty lub wartości KPI.
+- [ ] Otwórz stronę Faktury i sprawdź tabelę.
+- [ ] Ustaw każdy filtr faktur i sprawdź wyniki.
+- [ ] Otwórz stronę Dodaj fakturę.
+- [ ] Dodaj kontrahenta w sekcji szybkiego dodawania.
+- [ ] Dodaj inwestycję w sekcji szybkiego dodawania.
+- [ ] Dodaj poprawną fakturę jako szkic ręczny.
+- [ ] Zatwierdź poprawną fakturę.
+- [ ] Odrzuć fakturę i sprawdź zmianę statusu.
+- [ ] Wykonaj soft delete i sprawdź status Usunięta.
+- [ ] Wróć do Dashboardu i sprawdź aktualizację KPI.
+- [ ] Otwórz stronę Import i prześlij przykładowy plik CSV.
+- [ ] Sprawdź automatyczne mapowanie i zmień jedną kolumnę ręcznie.
+- [ ] Uruchom analizę oraz sprawdź tabelę błędów i ostrzeżeń.
+- [ ] Sprawdź wykrywanie duplikatu w pliku i duplikatu istniejącego w bazie.
+- [ ] Włącz automatyczne tworzenie brakujących kontrahentów i inwestycji.
+- [ ] Wykonaj import i porównaj raport z liczbą wierszy w pliku.
+- [ ] Powtórz import dla pliku XLSX z tymi samymi danymi.
