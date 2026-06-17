@@ -59,7 +59,8 @@ PYTHONPATH=src python3 -m pytest
 - walidacja importu, wykrywanie duplikatów i raport końcowy,
 - opcjonalne tworzenie brakujących kontrahentów i inwestycji,
 - raporty okresowe z filtrami i zestawieniami grupowymi,
-- eksport aktywnego raportu do CSV oraz wieloarkuszowego XLSX.
+- eksport aktywnego raportu do CSV oraz wieloarkuszowego XLSX,
+- upload faktur PDF, ekstrakcja tekstu i ręczna weryfikacja wykrytych pól.
 
 ## Import CSV i Excel
 
@@ -114,11 +115,40 @@ Przycisk `Pobierz XLSX` tworzy skoroszyt z arkuszami `Faktury`,
 `Według statusu`. Arkusze mają filtry, zamrożone nagłówki, formatowanie dat i
 kwot oraz wykres wartości brutto według statusu w podsumowaniu.
 
+## AI Review — faktury PDF
+
+Strona AI Review przyjmuje pliki `.pdf` do 10 MB. Na tym etapie działa w pełni
+lokalnie i nie łączy się z API AI. Aplikacja sprawdza
+rozszerzenie, typ MIME i nagłówek pliku, a następnie próbuje odczytać warstwę
+tekstową przez `pypdf`. Bezpieczna kopia trafia do `data/uploaded_invoices`
+pod sanityzowaną nazwą zawierającą fragment SHA-256, dlatego inny dokument nie
+zostanie przypadkowo nadpisany.
+
+Proste heurystyki rozpoznają numer faktury, sprzedawcę, NIP, datę wystawienia,
+termin płatności, kwoty netto/VAT/brutto i walutę. Obsługiwane są daty
+`YYYY-MM-DD`, `DD.MM.YYYY`, `DD/MM/YYYY` oraz polskie formaty kwot, np.
+`1 230,00` i `1.230,00`.
+
+Po odczycie użytkownik:
+
+1. sprawdza fragment tekstu i ostrzeżenia,
+2. może szybko dodać kontrahenta lub inwestycję,
+3. wybiera kontrahenta, inwestycję i kategorię,
+4. poprawia każde rozpoznane pole,
+5. zapisuje fakturę jako `NEEDS_REVIEW` albo `APPROVED`.
+
+Przed zapisem aplikacja sprawdza duplikat numeru faktury dla kontrahenta.
+Ścieżka PDF i jego hash są zapisywane w istniejących polach `source_file` i
+`file_hash` faktury.
+
 ## Znane ograniczenia
 
 - brak uwierzytelniania i obsługi wielu użytkowników,
 - lokalna baza SQLite bez migracji schematu,
 - brak obsługi starego formatu XLS, OCR i AI,
+- skany PDF bez warstwy tekstowej wymagają opcjonalnego OCR; interfejs OCR jest
+  przygotowany, ale żaden ciężki silnik nie jest instalowany obowiązkowo,
+- rozpoznawanie pól PDF opiera się na heurystykach i zawsze wymaga weryfikacji,
 - brak harmonogramów i automatycznej wysyłki raportów,
 - import działa na pierwszym arkuszu pliku XLSX,
 - import nie jest jedną transakcją: poprawne wiersze zapisują się niezależnie,

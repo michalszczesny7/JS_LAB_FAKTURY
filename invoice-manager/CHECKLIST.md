@@ -25,3 +25,11 @@
 - [ ] Włącz uwzględnianie miękko usuniętych faktur.
 - [ ] Pobierz CSV i sprawdź, czy zawiera tylko widoczne faktury.
 - [ ] Pobierz XLSX i sprawdź sześć arkuszy, formaty dat oraz kwot.
+- [ ] Otwórz stronę AI Review i prześlij PDF z warstwą tekstową.
+- [ ] Sprawdź sanityzowaną nazwę, rozmiar i fragment odczytanego tekstu.
+- [ ] Zweryfikuj numer, daty, NIP oraz kwoty wykryte z dokumentu.
+- [ ] Popraw ręcznie co najmniej jedno pole.
+- [ ] Dodaj kontrahenta lub inwestycję z poziomu strony PDF.
+- [ ] Zapisz fakturę jako Do weryfikacji i sprawdź powiązanie pliku.
+- [ ] Spróbuj zapisać ten sam numer ponownie i sprawdź blokadę duplikatu.
+- [ ] Prześlij skan bez tekstu i sprawdź komunikat o wymaganym OCR.

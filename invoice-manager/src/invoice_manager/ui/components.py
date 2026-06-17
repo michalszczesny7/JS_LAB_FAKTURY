@@ -11,6 +11,7 @@ from invoice_manager.repositories.category_repository import CategoryRepository
 from invoice_manager.repositories.contractor_repository import ContractorRepository
 from invoice_manager.repositories.investment_repository import InvestmentRepository
 from invoice_manager.repositories.invoice_repository import InvoiceRepository
+from invoice_manager.services.document_service import DocumentService
 from invoice_manager.services.invoice_service import InvoiceService
 from invoice_manager.services.import_service import ImportService
 from invoice_manager.services.lookup_service import LookupService
@@ -20,6 +21,7 @@ from invoice_manager.services.validation_service import ValidationService
 
 @dataclass(slots=True)
 class AppContext:
+    document_service: DocumentService
     invoice_repository: InvoiceRepository
     invoice_service: InvoiceService
     import_service: ImportService
@@ -38,6 +40,7 @@ def build_app_context(database_path: str | Path | None = None) -> AppContext:
     invoice_service = InvoiceService(invoices, validation)
     lookup_service = LookupService(contractors, investments, categories)
     return AppContext(
+        document_service=DocumentService(invoices, invoice_service),
         invoice_repository=invoices,
         invoice_service=invoice_service,
         import_service=ImportService(

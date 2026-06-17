@@ -21,6 +21,7 @@ PAGE_PATHS = (
     PROJECT_ROOT / "pages" / "3_Dodaj_fakture.py",
     PROJECT_ROOT / "pages" / "4_Import.py",
     PROJECT_ROOT / "pages" / "5_Raporty.py",
+    PROJECT_ROOT / "pages" / "6_AI_Review.py",
 )
 
 

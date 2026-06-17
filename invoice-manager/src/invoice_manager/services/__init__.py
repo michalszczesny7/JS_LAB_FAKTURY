@@ -1,5 +1,10 @@
 """Business services for invoice workflows."""
 
+from invoice_manager.services.document_service import (
+    DocumentService,
+    DocumentValidationError,
+    DuplicateDocumentError,
+)
 from invoice_manager.services.invoice_service import (
     InvoiceService,
     InvoiceValidationError,
@@ -17,6 +22,9 @@ from invoice_manager.services.validation_service import (
 )
 
 __all__ = [
+    "DocumentService",
+    "DocumentValidationError",
+    "DuplicateDocumentError",
     "InvoiceService",
     "InvoiceValidationError",
     "ImportService",
