@@ -1,0 +1,8 @@
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+data/invoices.db
+data/uploaded_invoices/
+data/imports/
+exports/

@@ -33,3 +33,9 @@
 - [ ] Zapisz fakturę jako Do weryfikacji i sprawdź powiązanie pliku.
 - [ ] Spróbuj zapisać ten sam numer ponownie i sprawdź blokadę duplikatu.
 - [ ] Prześlij skan bez tekstu i sprawdź komunikat o wymaganym OCR.
+- [ ] W AI Review wybierz lokalną ekstrakcję regex i sprawdź dotychczasowy wynik.
+- [ ] Wybierz AI demo/mock bez `.env` i sprawdź komunikat o trybie demonstracyjnym.
+- [ ] Wybierz OpenAI bez klucza i sprawdź fallback do demo/mock.
+- [ ] Skonfiguruj testowy `OPENAI_API_KEY` i sprawdź czytelny błąd API bez zapisu.
+- [ ] Porównaj propozycje metod i popraw co najmniej jedno pole ręcznie.
+- [ ] Sprawdź, że analiza nie zapisuje faktury przed kliknięciem „Zapisz fakturę”.

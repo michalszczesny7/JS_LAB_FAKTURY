@@ -1,5 +1,10 @@
 """Business services for invoice workflows."""
 
+from invoice_manager.services.ai_review_service import (
+    AIReviewExtraction,
+    AIReviewMethod,
+    AIReviewService,
+)
 from invoice_manager.services.document_service import (
     DocumentService,
     DocumentValidationError,
@@ -22,6 +27,9 @@ from invoice_manager.services.validation_service import (
 )
 
 __all__ = [
+    "AIReviewExtraction",
+    "AIReviewMethod",
+    "AIReviewService",
     "DocumentService",
     "DocumentValidationError",
     "DuplicateDocumentError",

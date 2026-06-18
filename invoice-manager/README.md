@@ -21,6 +21,24 @@ python3 -m pip install -r requirements-dev.txt
 Plik `requirements.txt` zawiera zależności aplikacji. Plik
 `requirements-dev.txt` dodaje narzędzia potrzebne do uruchamiania testów.
 
+Domyślny tryb AI nie wymaga klucza ani połączenia z internetem:
+
+```bash
+cp .env.example .env
+# AI_PROVIDER=mock
+```
+
+Opcjonalny dostawca OpenAI wymaga ustawienia w lokalnym `.env`:
+
+```env
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-5-mini
+AI_PROVIDER=openai
+```
+
+Plik `.env` jest ignorowany przez Git. Klucz nie powinien trafiać do kodu,
+logów ani repozytorium.
+
 ## Inicjalizacja bazy
 
 ```bash
@@ -60,7 +78,8 @@ PYTHONPATH=src python3 -m pytest
 - opcjonalne tworzenie brakujących kontrahentów i inwestycji,
 - raporty okresowe z filtrami i zestawieniami grupowymi,
 - eksport aktywnego raportu do CSV oraz wieloarkuszowego XLSX,
-- upload faktur PDF, ekstrakcja tekstu i ręczna weryfikacja wykrytych pól.
+- upload faktur PDF, ekstrakcja tekstu i ręczna weryfikacja wykrytych pól,
+- wymienny ekstraktor AI z trybem lokalnym, demo/mock oraz opcjonalnym OpenAI.
 
 ## Import CSV i Excel
 
@@ -117,8 +136,7 @@ kwot oraz wykres wartości brutto według statusu w podsumowaniu.
 
 ## AI Review — faktury PDF
 
-Strona AI Review przyjmuje pliki `.pdf` do 10 MB. Na tym etapie działa w pełni
-lokalnie i nie łączy się z API AI. Aplikacja sprawdza
+Strona AI Review przyjmuje pliki `.pdf` do 10 MB. Aplikacja sprawdza
 rozszerzenie, typ MIME i nagłówek pliku, a następnie próbuje odczytać warstwę
 tekstową przez `pypdf`. Bezpieczna kopia trafia do `data/uploaded_invoices`
 pod sanityzowaną nazwą zawierającą fragment SHA-256, dlatego inny dokument nie
@@ -128,6 +146,17 @@ Proste heurystyki rozpoznają numer faktury, sprzedawcę, NIP, datę wystawienia
 termin płatności, kwoty netto/VAT/brutto i walutę. Obsługiwane są daty
 `YYYY-MM-DD`, `DD.MM.YYYY`, `DD/MM/YYYY` oraz polskie formaty kwot, np.
 `1 230,00` i `1.230,00`.
+
+Użytkownik wybiera jedną z metod ekstrakcji:
+
+1. lokalne heurystyki regex,
+2. offline AI demo/mock, korzystające z tych samych heurystyk,
+3. OpenAI API, jeśli skonfigurowano `OPENAI_API_KEY`.
+
+Adapter OpenAI używa Responses API i wymusza wynik zgodny ze schematem JSON.
+Brak klucza powoduje bezpieczny fallback do demo/mock. Każdy ekstraktor tylko
+proponuje wartości formularza — nie ma dostępu do repozytorium faktur i nie
+wykonuje zapisu.
 
 Po odczycie użytkownik:
 
@@ -145,10 +174,11 @@ Przed zapisem aplikacja sprawdza duplikat numeru faktury dla kontrahenta.
 
 - brak uwierzytelniania i obsługi wielu użytkowników,
 - lokalna baza SQLite bez migracji schematu,
-- brak obsługi starego formatu XLS, OCR i AI,
+- brak obsługi starego formatu XLS i OCR,
 - skany PDF bez warstwy tekstowej wymagają opcjonalnego OCR; interfejs OCR jest
   przygotowany, ale żaden ciężki silnik nie jest instalowany obowiązkowo,
 - rozpoznawanie pól PDF opiera się na heurystykach i zawsze wymaga weryfikacji,
+- wyniki AI również są propozycją i zawsze wymagają ręcznej weryfikacji,
 - brak harmonogramów i automatycznej wysyłki raportów,
 - import działa na pierwszym arkuszu pliku XLSX,
 - import nie jest jedną transakcją: poprawne wiersze zapisują się niezależnie,
