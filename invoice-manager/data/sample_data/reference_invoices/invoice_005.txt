@@ -1,0 +1,8 @@
+Numer faktury: SERWIS-19-06-26
+Firma realizująca: Fikcyjny Serwis Instalacyjny Iskra
+NIP: 5841234567
+Data faktury: 19/06/2026
+Netto: 2 500,00 zł
+VAT: 575,00 zł
+Brutto: 3 075,00 zł
+Uwagi: termin płatności ustalany osobno, nie podano na dokumencie

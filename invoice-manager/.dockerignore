@@ -1,0 +1,15 @@
+.git
+.env
+.venv
+__pycache__
+**/__pycache__
+*.pyc
+**/*.pyc
+.pytest_cache
+.mypy_cache
+.coverage
+htmlcov
+data/invoices.db
+data/uploaded_invoices
+data/imports
+exports

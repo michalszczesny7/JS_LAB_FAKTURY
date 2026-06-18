@@ -1,0 +1,9 @@
+FAKTURA nr RENT/2026/118
+Dostawca: Fikcyjny Najem Maszyn Bud-Pro Sp. z o.o.
+NIP: 525-000-11-22
+Wystawiono: 18/06/2026
+Data płatności: 02/07/2026
+Netto razem: 1.230,00 PLN
+VAT: 282,90 PLN
+Do zapłaty: 1.512,90 PLN
+Przedmiot: wynajem minikoparki, 3 dni

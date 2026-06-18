@@ -1,0 +1,9 @@
+FAKTURA VAT nr MAT/06/2026/001
+Sprzedawca: Fikcyjny Skład Budowlany Cegiełka Sp. z o.o.
+NIP: 526-025-02-74
+Data wystawienia: 2026-06-03
+Termin płatności: 2026-06-17
+Netto: 10 000,00 PLN
+VAT: 2 300,00 PLN
+Brutto: 12 300,00 PLN
+Opis: stal zbrojeniowa, cement i bloczki konstrukcyjne

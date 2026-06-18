@@ -1,0 +1,13 @@
+{
+  "invoice_number": "SERWIS-19-06-26",
+  "issue_date": "2026-06-19",
+  "payment_date": null,
+  "contractor_name": "Fikcyjny Serwis Instalacyjny Iskra",
+  "contractor_nip": "5841234567",
+  "invoice_type": "COST",
+  "category": "robocizna",
+  "net_amount": 2500.0,
+  "vat_amount": 575.0,
+  "gross_amount": 3075.0,
+  "payment_status": "OVERDUE"
+}

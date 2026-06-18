@@ -25,14 +25,19 @@ COLUMN_ALIASES = {
     "contractor": {"kontrahent", "contractor", "client", "klient", "dostawca"},
     "investment": {"inwestycja", "investment", "project", "projekt"},
     "issue_date": {"data", "data faktury", "issue date", "invoice date"},
-    "payment_date": {"termin platnosci", "due date", "payment date"},
+    "payment_date": {
+        "termin platnosci",
+        "termin płatności",
+        "due date",
+        "payment date",
+    },
     "net_amount": {"netto", "kwota netto", "net amount", "net"},
     "vat_amount": {"vat", "kwota vat", "tax amount", "tax"},
     "gross_amount": {"brutto", "kwota brutto", "gross amount", "gross"},
     "category": {"kategoria", "category"},
     "invoice_type": {"typ faktury", "invoice type", "type"},
     "status": {"status", "status faktury", "invoice status"},
-    "payment_status": {"status platnosci", "payment status"},
+    "payment_status": {"status platnosci", "status płatności", "payment status"},
 }
 
 REQUIRED_MAPPED_FIELDS = ("invoice_number", "contractor", "investment", "issue_date")

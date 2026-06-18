@@ -1,0 +1,13 @@
+{
+  "invoice_number": "MAT/06/2026/001",
+  "issue_date": "2026-06-03",
+  "payment_date": "2026-06-17",
+  "contractor_name": "Fikcyjny Skład Budowlany Cegiełka Sp. z o.o.",
+  "contractor_nip": "5260250274",
+  "invoice_type": "COST",
+  "category": "materiały budowlane",
+  "net_amount": 10000.0,
+  "vat_amount": 2300.0,
+  "gross_amount": 12300.0,
+  "payment_status": "UNPAID"
+}

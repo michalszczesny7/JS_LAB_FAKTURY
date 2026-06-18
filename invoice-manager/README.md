@@ -1,52 +1,126 @@
-# Invoice Manager
+# Invoice Manager AI
 
-Invoice Manager to prosta aplikacja MVP do ręcznego zarządzania fakturami
-kosztowymi i sprzedażowymi dla inwestycji. Interfejs powstał w Streamlit,
-a dane są przechowywane lokalnie w bazie SQLite.
+## Opis projektu
 
-## Wymagania
+Invoice Manager AI to laboratoryjna aplikacja Streamlit do zarządzania
+fakturami firmy budowlano-deweloperskiej. Dane są przechowywane lokalnie w
+SQLite, a logika biznesowa jest oddzielona od interfejsu i repozytoriów.
 
-- Python 3.11 lub nowszy
-- pip
+AI pełni rolę pomocnika: proponuje wartości odczytane z tekstu faktury, ale nie
+zapisuje ich autonomicznie. Użytkownik weryfikuje formularz, a każda faktura
+przed zapisem przechodzi wspólną walidację. Dashboard finansowy uwzględnia
+wyłącznie faktury zatwierdzone; moduł Raporty pozwala dodatkowo analizować i
+filtrować pozostałe statusy.
+
+## Główne funkcje
+
+- ręczne dodawanie, zatwierdzanie, odrzucanie i soft delete faktur,
+- kontrahenci, inwestycje, kategorie i statusy płatności,
+- dashboard kosztów, przychodów i bilansu zatwierdzonych faktur,
+- import CSV/XLSX z mapowaniem, walidacją i wykrywaniem duplikatów,
+- raporty okresowe oraz eksport CSV i wieloarkuszowego XLSX,
+- bezpieczny upload PDF z warstwą tekstową i SHA-256,
+- lokalna ekstrakcja regex, offline demo/mock i opcjonalny adapter OpenAI,
+- ręczna korekta pól przed zapisem przez `InvoiceService`,
+- referencyjny zestaw faktur i raport jakości ekstrakcji.
+
+## Technologie
+
+- Python 3.11+
+- Streamlit
+- SQLite
+- pypdf
+- openpyxl
+- OpenAI Python SDK jako opcjonalny dostawca ekstrakcji
+- pytest
+- Docker
+
+## Architektura
+
+Projekt stosuje prostą architekturę warstwową:
+
+```text
+Streamlit pages
+      ↓
+Services (przypadki użycia i orkiestracja)
+      ↓
+Validation + repositories
+      ↓
+SQLite
+
+PDF → DocumentService → regex/mock/OpenAI → formularz użytkownika
+                                          ↓
+                               InvoiceService → ValidationService → SQLite
+```
+
+Ekstraktory AI implementują wspólny interfejs i nie mają dostępu do
+repozytorium faktur. `DocumentService` odpowiada za dokument, powiązanie pliku
+i hasha, natomiast `InvoiceService` pozostaje jedyną ścieżką zapisu faktury.
+
+## Struktura katalogów
+
+```text
+app.py                         punkt startowy Streamlit
+pages/                         widoki aplikacji
+src/invoice_manager/
+  ai/                          wymienne ekstraktory AI
+  db/                          schemat i inicjalizacja SQLite
+  documents/                   PDF i heurystyki pól
+  evaluation/                  loader i metryki jakości
+  importers/                   CSV/XLSX
+  models/                      modele domenowe
+  repositories/                dostęp do SQLite
+  services/                    przypadki użycia
+  ui/                          współdzielone komponenty Streamlit
+  validators/                  reguły biznesowe
+data/sample_data/              wersjonowane dane demonstracyjne
+scripts/                       ewaluacja i smoke check
+tests/                         testy jednostkowe i integracyjne
+```
 
 ## Instalacja
 
 ```bash
-cd /Users/macbookpro15/Documents/JS_LAB_FAKTURY/invoice-manager
+git clone <adres-repozytorium>
+cd invoice-manager
 python3 -m venv .venv
 source .venv/bin/activate
+python3 -m pip install -r requirements.txt
+cp .env.example .env
+```
+
+Do uruchamiania testów doinstaluj zależności developerskie:
+
+```bash
 python3 -m pip install -r requirements-dev.txt
 ```
 
-Plik `requirements.txt` zawiera zależności aplikacji. Plik
-`requirements-dev.txt` dodaje narzędzia potrzebne do uruchamiania testów.
+## Konfiguracja środowiska
 
-Domyślny tryb AI nie wymaga klucza ani połączenia z internetem:
-
-```bash
-cp .env.example .env
-# AI_PROVIDER=mock
-```
-
-Opcjonalny dostawca OpenAI wymaga ustawienia w lokalnym `.env`:
+Domyślna konfiguracja `.env.example`:
 
 ```env
-OPENAI_API_KEY=sk-...
+APP_ENV=development
+DATABASE_PATH=data/invoices.db
+
+AI_PROVIDER=mock
+OPENAI_API_KEY=
 OPENAI_MODEL=gpt-5-mini
-AI_PROVIDER=openai
+
+MAX_UPLOAD_SIZE_MB=10
 ```
 
-Plik `.env` jest ignorowany przez Git. Klucz nie powinien trafiać do kodu,
-logów ani repozytorium.
+`INVOICE_MANAGER_DB_PATH` pozostaje obsługiwanym nadpisaniem ścieżki bazy,
+przydatnym między innymi w testach. Lokalny `.env` jest ignorowany przez Git.
 
-## Inicjalizacja bazy
+## Inicjalizacja bazy danych
 
 ```bash
 PYTHONPATH=src python3 -m invoice_manager.db.init_db
 ```
 
-Polecenie tworzy lokalny plik `data/invoices.db` i dodaje podstawowe kategorie.
-Baza jest ignorowana przez Git.
+Polecenie tworzy `data/invoices.db` i podstawowe kategorie. Lokalna baza nie
+jest wersjonowana.
 
 ## Uruchomienie aplikacji
 
@@ -54,137 +128,138 @@ Baza jest ignorowana przez Git.
 PYTHONPATH=src streamlit run app.py
 ```
 
-Po uruchomieniu Streamlit wyświetli lokalny adres aplikacji, zwykle
-`http://localhost:8501`.
+Aplikacja jest zwykle dostępna pod `http://localhost:8501`.
+
+## Tryb demo/mock AI
+
+Tryb domyślny nie wymaga internetu ani płatnego API:
+
+```env
+AI_PROVIDER=mock
+OPENAI_API_KEY=
+```
+
+Mock korzysta z lokalnych heurystyk i zwraca wynik w tym samym schemacie co
+zewnętrzny dostawca. Na stronie AI Review można też wybrać czysty regex.
+
+## Konfiguracja OpenAI API
+
+OpenAI jest opcjonalne. Aby włączyć adapter, ustaw lokalnie:
+
+```env
+AI_PROVIDER=openai
+OPENAI_API_KEY=sk-...
+OPENAI_MODEL=gpt-5-mini
+```
+
+Klucz nie może trafić do repozytorium. Brak klucza powoduje bezpieczny fallback
+do demo/mock. Testy nie wykonują rzeczywistych zapytań API.
+
+## Import CSV/Excel
+
+Strona Import obsługuje `.csv` i `.xlsx`. Proces obejmuje podgląd danych,
+automatyczne lub ręczne mapowanie kolumn, walidację, wykrywanie duplikatów i
+opcjonalne tworzenie brakujących kontrahentów oraz inwestycji.
+
+Gotowy plik demonstracyjny:
+
+```text
+data/sample_data/sample_invoices.csv
+```
+
+Zawiera 15 fikcyjnych faktur. Przed importem zainicjalizuj bazę, pozostaw
+automatyczne mapowanie i zaznacz tworzenie brakujących podmiotów.
+
+## AI Review PDF workflow
+
+1. Użytkownik przesyła PDF do 10 MB.
+2. Aplikacja sprawdza rozszerzenie, MIME, nagłówek i rozmiar.
+3. `pypdf` odczytuje istniejącą warstwę tekstową.
+4. Wybrany ekstraktor proponuje pola faktury.
+5. Użytkownik poprawia dane w formularzu.
+6. `DocumentService` dołącza `source_file` i `file_hash`.
+7. `InvoiceService` uruchamia walidację i dopiero wtedy zapisuje rekord.
+
+Analiza dokumentu nigdy nie powoduje automatycznego zapisu faktury.
+
+## Ocena jakości ekstrakcji
+
+Pięć fikcyjnych faktur referencyjnych zawiera oczekiwane wartości 11 pól.
+Ewaluacja offline działa bez OpenAI:
+
+```bash
+PYTHONPATH=src python3 scripts/evaluate_extraction.py
+```
+
+Raport trafia do `exports/extraction_quality_report.json`. Wynik można również
+obejrzeć na stronie Jakość Ekstrakcji. Wariant mock:
+
+```bash
+PYTHONPATH=src python3 scripts/evaluate_extraction.py --method mock
+```
 
 ## Testy
 
 ```bash
-python3 -m compileall src app.py pages
 PYTHONPATH=src python3 -m pytest
+PYTHONPATH=src python3 -m compileall app.py pages src scripts
+PYTHONPATH=src python3 scripts/smoke_check.py
 ```
 
-## Obecny zakres
+## Walidacja projektu i CI
 
-- ręczne dodawanie faktur,
-- szybkie dodawanie kontrahentów i inwestycji,
-- walidacja NIP, dat, kwot, statusów i duplikatów,
-- zatwierdzanie i odrzucanie faktur,
-- soft delete,
-- tabela faktur z filtrami i nazwami powiązanych rekordów,
-- dashboard KPI dla zatwierdzonych faktur,
-- import faktur z CSV i XLSX z podglądem oraz ręcznym mapowaniem kolumn,
-- walidacja importu, wykrywanie duplikatów i raport końcowy,
-- opcjonalne tworzenie brakujących kontrahentów i inwestycji,
-- raporty okresowe z filtrami i zestawieniami grupowymi,
-- eksport aktywnego raportu do CSV oraz wieloarkuszowego XLSX,
-- upload faktur PDF, ekstrakcja tekstu i ręczna weryfikacja wykrytych pól,
-- wymienny ekstraktor AI z trybem lokalnym, demo/mock oraz opcjonalnym OpenAI.
+Komplet lokalnych kontroli można uruchomić jedną komendą, bez klucza OpenAI,
+internetu i Docker CLI:
 
-## Import CSV i Excel
-
-Strona Import obsługuje pliki `.csv` oraz `.xlsx`. Po przesłaniu pliku aplikacja:
-
-1. pokazuje pierwsze 20 wierszy,
-2. proponuje mapowanie popularnych nazw kolumn,
-3. pozwala poprawić mapowanie ręcznie,
-4. analizuje błędy, ostrzeżenia i duplikaty,
-5. zapisuje tylko poprawne, niepowielone wiersze,
-6. wyświetla raport importu.
-
-Przykładowy plik CSV rozdzielany średnikami:
-
-```csv
-nr faktury;kontrahent;inwestycja;data;termin płatności;netto;vat;brutto
-FV/2026/001;Bud-Mat Sp. z o.o.;Osiedle Słoneczne;2026-06-17;2026-07-01;1000,00;230,00;1230,00
-FV/2026/002;Projekt Dom S.A.;Budynek A;18.06.2026;;2500,00;575,00;3075,00
+```bash
+PYTHONPATH=src python3 scripts/validate_project.py
 ```
 
-Rozpoznawane są między innymi nagłówki `numer`, `nr faktury`,
-`invoice_number`, `kontrahent`, `contractor`, `client`, `inwestycja`,
-`investment`, `project`, `data`, `issue_date`, `invoice_date`, `due_date`,
-`netto`, `net_amount`, `brutto`, `gross_amount`, `vat` i `tax_amount`.
+Skrypt kolejno uruchamia testy, kompilację plików Python, smoke check, ewaluację
+ekstrakcji oraz `git diff --check`. Workflow GitHub Actions wykonuje te same
+kontrole dla każdego `push` i `pull_request`. Osobny job CI buduje także obraz
+z istniejącego Dockerfile.
 
-Numer faktury, kontrahent, inwestycja i data są wymagane. Należy również
-zmapować kwotę netto albo brutto. Brakująca druga kwota jest wyliczana z VAT,
-a pusty VAT przyjmuje wartość `0`. Kwoty ujemne są błędem, ponieważ obecny
-model faktury nie dopuszcza ich do zapisu. Duplikaty w pliku i bazie są
-domyślnie pomijane.
+## Docker / wdrożenie
 
-## Raporty i eksport
+Repozytorium zawiera prosty `Dockerfile` dla demonstracyjnego wdrożenia z
+domyślnym mock AI:
 
-Strona Raporty pozwala filtrować faktury według zakresu dat, inwestycji,
-kontrahenta, kategorii, typu faktury, statusu faktury i statusu płatności.
-Miękko usunięte faktury są domyślnie ukryte i można je dołączyć osobną opcją.
+```bash
+docker build -t invoice-manager .
+docker run -p 8501:8501 invoice-manager
+```
 
-Po ustawieniu filtrów wybierz `Odśwież raport`. Widok pokaże KPI oraz tabele:
+Kontener nie zawiera lokalnego `.env` ani bazy. Dla trwałych danych należy
+podłączyć wolumen do `/app/data`. Dockerfile jest przeznaczony do prezentacji,
+nie stanowi kompletnej konfiguracji produkcyjnej.
 
-- pełną listę faktur,
-- zestawienie według inwestycji,
-- zestawienie według kontrahentów,
-- zestawienie miesięczne,
-- zestawienie według statusu.
+## Dane demonstracyjne
 
-Przycisk `Pobierz CSV` zapisuje pełną listę faktur po aktywnych filtrach w
-UTF-8, z separatorem średnikowym. Daty mają format `YYYY-MM-DD`, a kwoty są
-eksportowane jako wartości liczbowe.
+- `data/sample_data/sample_invoices.csv` — 15 faktur do importu,
+- `data/sample_data/reference_invoices/` — teksty i oczekiwane JSON-y,
+- `data/sample_data/README.md` — opis scenariuszy demonstracyjnych.
 
-Przycisk `Pobierz XLSX` tworzy skoroszyt z arkuszami `Faktury`,
-`Podsumowanie`, `Według inwestycji`, `Według kontrahentów`, `Miesięcznie` i
-`Według statusu`. Arkusze mają filtry, zamrożone nagłówki, formatowanie dat i
-kwot oraz wykres wartości brutto według statusu w podsumowaniu.
+Wszystkie podmioty, NIP-y, numery i kwoty są fikcyjne.
 
-## AI Review — faktury PDF
+## Ograniczenia projektu
 
-Strona AI Review przyjmuje pliki `.pdf` do 10 MB. Aplikacja sprawdza
-rozszerzenie, typ MIME i nagłówek pliku, a następnie próbuje odczytać warstwę
-tekstową przez `pypdf`. Bezpieczna kopia trafia do `data/uploaded_invoices`
-pod sanityzowaną nazwą zawierającą fragment SHA-256, dlatego inny dokument nie
-zostanie przypadkowo nadpisany.
+- OCR skanów nie jest częścią domyślnej wersji,
+- PDF workflow najlepiej działa z dokumentami zawierającymi warstwę tekstową,
+- OpenAI API jest opcjonalne, a brak klucza uruchamia demo/mock,
+- aplikacja jest prototypem zarządzania i analizy faktur, nie pełnym systemem
+  księgowym,
+- SQLite nie ma systemu migracji ani obsługi wielu użytkowników,
+- kwoty są przechowywane jako `float`,
+- import wielu rekordów nie jest jedną transakcją,
+- dane referencyjne są demonstracyjne i nie zastępują ewaluacji wdrożeniowej.
 
-Proste heurystyki rozpoznają numer faktury, sprzedawcę, NIP, datę wystawienia,
-termin płatności, kwoty netto/VAT/brutto i walutę. Obsługiwane są daty
-`YYYY-MM-DD`, `DD.MM.YYYY`, `DD/MM/YYYY` oraz polskie formaty kwot, np.
-`1 230,00` i `1.230,00`.
+## Możliwe dalsze rozszerzenia
 
-Użytkownik wybiera jedną z metod ekstrakcji:
-
-1. lokalne heurystyki regex,
-2. offline AI demo/mock, korzystające z tych samych heurystyk,
-3. OpenAI API, jeśli skonfigurowano `OPENAI_API_KEY`.
-
-Adapter OpenAI używa Responses API i wymusza wynik zgodny ze schematem JSON.
-Brak klucza powoduje bezpieczny fallback do demo/mock. Każdy ekstraktor tylko
-proponuje wartości formularza — nie ma dostępu do repozytorium faktur i nie
-wykonuje zapisu.
-
-Po odczycie użytkownik:
-
-1. sprawdza fragment tekstu i ostrzeżenia,
-2. może szybko dodać kontrahenta lub inwestycję,
-3. wybiera kontrahenta, inwestycję i kategorię,
-4. poprawia każde rozpoznane pole,
-5. zapisuje fakturę jako `NEEDS_REVIEW` albo `APPROVED`.
-
-Przed zapisem aplikacja sprawdza duplikat numeru faktury dla kontrahenta.
-Ścieżka PDF i jego hash są zapisywane w istniejących polach `source_file` i
-`file_hash` faktury.
-
-## Znane ograniczenia
-
-- brak uwierzytelniania i obsługi wielu użytkowników,
-- lokalna baza SQLite bez migracji schematu,
-- brak obsługi starego formatu XLS i OCR,
-- skany PDF bez warstwy tekstowej wymagają opcjonalnego OCR; interfejs OCR jest
-  przygotowany, ale żaden ciężki silnik nie jest instalowany obowiązkowo,
-- rozpoznawanie pól PDF opiera się na heurystykach i zawsze wymaga weryfikacji,
-- wyniki AI również są propozycją i zawsze wymagają ręcznej weryfikacji,
-- brak harmonogramów i automatycznej wysyłki raportów,
-- import działa na pierwszym arkuszu pliku XLSX,
-- import nie jest jedną transakcją: poprawne wiersze zapisują się niezależnie,
-- kwoty są obecnie przechowywane jako `float`, co nie jest docelowym
-  rozwiązaniem dla rozbudowanej księgowości.
-
-## Test ręczny
-
-Pełna lista kroków znajduje się w [CHECKLIST.md](CHECKLIST.md).
+- opcjonalny OCR i referencyjne skany PDF,
+- `Decimal` dla kwot oraz migracje schematu,
+- uwierzytelnianie i role użytkowników,
+- transakcyjny import wsadowy,
+- wersjonowanie promptów i porównywanie dostawców AI,
+- publikowanie obrazu Docker po pomyślnym przejściu CI,
+- produkcyjna konfiguracja kontenera i trwałych wolumenów.

@@ -1,0 +1,13 @@
+{
+  "invoice_number": "RENT/2026/118",
+  "issue_date": "2026-06-18",
+  "payment_date": "2026-07-02",
+  "contractor_name": "Fikcyjny Najem Maszyn Bud-Pro Sp. z o.o.",
+  "contractor_nip": "5250001122",
+  "invoice_type": "COST",
+  "category": "sprzęt",
+  "net_amount": 1230.0,
+  "vat_amount": 282.9,
+  "gross_amount": 1512.9,
+  "payment_status": "PAID"
+}

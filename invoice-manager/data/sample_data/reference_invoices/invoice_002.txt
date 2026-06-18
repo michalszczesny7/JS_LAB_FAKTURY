@@ -1,0 +1,9 @@
+Faktura VAT nr POD/44/2026
+Wystawca: Fikcyjni Fachowcy Konstrukcje Sp. z o.o.
+NIP: 5211234567
+Data faktury: 14.06.2026
+Płatne do: 28.06.2026
+Kwota netto: 25 000,00 zł
+VAT 23%: 5 750,00 zł
+Razem brutto: 30 750,00 zł
+Usługa: wykonanie ścian żelbetowych budynku B

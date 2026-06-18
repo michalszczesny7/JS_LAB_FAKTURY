@@ -1,0 +1,16 @@
+nr faktury;kontrahent;inwestycja;data;termin płatności;netto;vat;brutto;kategoria;typ faktury;status;status płatności
+DEMO/2026/001;Fikcyjny Skład Cegiełka;Osiedle Słoneczne;2026-05-05;2026-05-19;10000,00;2300,00;12300,00;materiały budowlane;COST;APPROVED;PAID
+DEMO/2026/002;Fikcyjni Fachowcy Konstrukcje;Osiedle Słoneczne;06.05.2026;20.05.2026;25000,00;5750,00;30750,00;podwykonawcy;COST;APPROVED;PAID
+DEMO/2026/003;Fikcyjny Najem Maszyn Bud-Pro;Budynek Parkowy;07/05/2026;21/05/2026;1230,00;282,90;1512,90;sprzęt;COST;APPROVED;PAID
+DEMO/2026/004;Fikcyjny Transport Żuraw;Budynek Parkowy;2026-05-08;2026-05-22;4200,00;966,00;5166,00;transport;COST;DRAFT_MANUAL;UNPAID
+DEMO/2026/005;Fikcyjne Biuro Projektowe Linia;Apartamenty Nad Rzeką;09.05.2026;23.05.2026;8000,00;1840,00;9840,00;projektowanie;COST;NEEDS_REVIEW;OVERDUE
+DEMO/2026/006;Fikcyjny Deweloper Słoneczne Tarasy;Osiedle Słoneczne;10/05/2026;24/05/2026;500000,00;115000,00;615000,00;sprzedaż lokalu;SALES;APPROVED;PAID
+DEMO/2026/007;Fikcyjny Klient Anna Kowalska;Apartamenty Nad Rzeką;2026-05-11;2026-05-25;420000,00;96600,00;516600,00;sprzedaż lokalu;SALES;APPROVED;UNPAID
+DEMO/2026/008;Fikcyjna Administracja Nieruchomości;Biuro Centralne;12.05.2026;26.05.2026;1500,00;345,00;1845,00;administracja;COST;DRAFT_MANUAL;OVERDUE
+DEMO/2026/009;Fikcyjny Skład Cegiełka;Budynek Parkowy;13/05/2026;27/05/2026;7600,00;1748,00;9348,00;materiały budowlane;COST;APPROVED;PAID
+DEMO/2026/010;Fikcyjny Serwis Instalacyjny Iskra;Osiedle Słoneczne;2026-05-14;;2500,00;575,00;3075,00;robocizna;COST;NEEDS_REVIEW;OVERDUE
+DEMO/2026/011;Fikcyjni Fachowcy Konstrukcje;Apartamenty Nad Rzeką;15.05.2026;29.05.2026;18000,00;4140,00;22140,00;podwykonawcy;COST;APPROVED;PAID
+DEMO/2026/012;Fikcyjny Klient Piotr Nowak;Budynek Parkowy;16/05/2026;30/05/2026;350000,00;80500,00;430500,00;sprzedaż lokalu;SALES;DRAFT_MANUAL;UNPAID
+DEMO/2026/013;Fikcyjny Najem Maszyn Bud-Pro;Apartamenty Nad Rzeką;2026-05-17;2026-05-31;3400,00;782,00;4182,00;sprzęt;COST;APPROVED;PAID
+DEMO/2026/014;Fikcyjne Biuro Projektowe Linia;Budynek Parkowy;18.05.2026;01.06.2026;6200,00;1426,00;7626,00;projektowanie;COST;NEEDS_REVIEW;UNPAID
+DEMO/2026/015;Fikcyjny Deweloper Słoneczne Tarasy;Apartamenty Nad Rzeką;19/05/2026;02/06/2026;610000,00;140300,00;750300,00;sprzedaż lokalu;SALES;APPROVED;UNPAID

@@ -1,0 +1,9 @@
+Faktura VAT numer LOK/2026/007
+Sprzedawca: Fikcyjny Deweloper Słoneczne Tarasy Sp. z o.o.
+NIP: 5271112233
+Data wystawienia: 20.06.2026
+Termin płatności: 30.06.2026
+Netto: 500 000,00 PLN
+VAT 23%: 115 000,00 PLN
+Razem do zapłaty: 615.000,00 PLN
+Przedmiot sprzedaży: lokal mieszkalny A-12
