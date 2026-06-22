@@ -60,12 +60,14 @@ def extract_text_from_pdf(
     text = "\n".join(part.strip() for part in page_texts if part.strip()).strip()
     used_ocr = False
     if not text and ocr_fallback is not None:
-        text = (ocr_fallback(content) or "").strip()
-        used_ocr = bool(text)
+        try:
+            text = (ocr_fallback(content) or "").strip()
+            used_ocr = bool(text)
+        except Exception as error:
+            warnings.append(f"OCR nie został wykonany: {error}")
     if not text:
         warnings.append(
-            "PDF nie zawiera warstwy tekstowej. Skan wymaga opcjonalnego OCR, "
-            "który nie jest włączony w tej wersji."
+            "PDF nie zawiera warstwy tekstowej i OCR nie zwrócił tekstu."
         )
     return PdfTextResult(
         text=text,

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
 from datetime import date, timedelta
 
 import streamlit as st
@@ -18,11 +19,24 @@ from invoice_manager.ui.tables import (
 )
 
 
+def calculate_gross_amount(net_amount: float, vat_amount: float) -> float:
+    """Return the invoice gross amount rounded to currency precision."""
+
+    return round(float(net_amount) + float(vat_amount), 2)
+
+
+@dataclass(slots=True, frozen=True)
+class SourceDocumentUpload:
+    content: bytes
+    filename: str
+    mime_type: str | None
+
+
 def render_invoice_form(
     contractors: list[Contractor],
     investments: list[Investment],
     categories: list[Category],
-) -> tuple[Invoice, bool] | None:
+) -> tuple[Invoice, bool, SourceDocumentUpload | None] | None:
     """Render the manual invoice form and return a submission when sent."""
 
     with st.form("manual_invoice_form", clear_on_submit=False):
@@ -50,9 +64,10 @@ def render_invoice_form(
                 categories,
                 format_func=lambda item: item.name,
             )
-            source_file = st.text_input(
+            source_file = st.file_uploader(
                 "Plik źródłowy (opcjonalnie)",
-                placeholder="faktura.pdf",
+                type=("pdf", "jpg", "jpeg", "png", "csv"),
+                help="Dozwolone są dokumenty PDF, JPG, JPEG, PNG i CSV do 10 MB.",
             )
 
         date_left, date_middle, date_right = st.columns(3)
@@ -77,9 +92,17 @@ def render_invoice_form(
                 "Kwota VAT", min_value=0.0, step=0.01, format="%.2f"
             )
         with amount_right:
-            gross_amount = st.number_input(
-                "Kwota brutto", min_value=0.0, step=0.01, format="%.2f"
+            gross_amount = calculate_gross_amount(net_amount, vat_amount)
+            st.number_input(
+                "Kwota brutto",
+                min_value=0.0,
+                value=gross_amount,
+                step=0.01,
+                format="%.2f",
+                disabled=True,
+                help="Wyliczana automatycznie jako netto + VAT.",
             )
+        st.caption("Kwota brutto zostanie automatycznie przeliczona przy zapisie.")
 
         payment_status = st.selectbox(
             "Status płatności",
@@ -110,8 +133,16 @@ def render_invoice_form(
         status=save_mode,
         net_amount=float(net_amount),
         vat_amount=float(vat_amount),
-        gross_amount=float(gross_amount),
+        gross_amount=calculate_gross_amount(net_amount, vat_amount),
         payment_status=payment_status,
-        source_file=source_file.strip() or None,
     )
-    return invoice, save_mode is InvoiceStatus.APPROVED
+    source_upload = (
+        SourceDocumentUpload(
+            content=source_file.getvalue(),
+            filename=source_file.name,
+            mime_type=source_file.type,
+        )
+        if source_file is not None
+        else None
+    )
+    return invoice, save_mode is InvoiceStatus.APPROVED, source_upload

@@ -1,4 +1,4 @@
-"""PDF upload, text extraction, and manual invoice verification."""
+"""Invoice-document upload, extraction, and manual verification."""
 
 from __future__ import annotations
 
@@ -17,7 +17,11 @@ from invoice_manager.ui.components import (
     configure_page,
     page_header,
 )
-from invoice_manager.ui.forms import invoice_type_label, status_label
+from invoice_manager.ui.forms import (
+    calculate_gross_amount,
+    invoice_type_label,
+    status_label,
+)
 from invoice_manager.ui.messages import show_service_exception
 from invoice_manager.ui.tables import PAYMENT_STATUS_LABELS, payment_status_label
 from invoice_manager.validators.nip_validator import validate_nip
@@ -62,10 +66,10 @@ def detected_invoice_type(value: str | None) -> InvoiceType:
         return InvoiceType.COST
 
 
-configure_page("AI Review")
+configure_page("Import AI")
 page_header(
-    "AI Review — faktura PDF",
-    "Odczytaj dokument lokalnie i zweryfikuj pola przed zapisem.",
+    "Import AI — dokument faktury",
+    "Odczytaj PDF, obraz lub CSV i zweryfikuj pola przed zapisem.",
 )
 
 try:
@@ -77,9 +81,12 @@ except Exception as error:
 if not context.ai_review_service.openai_configured:
     st.info("Brak OPENAI_API_KEY — używany jest tryb demo/mock.")
 
-uploaded_file = st.file_uploader("Dokument PDF", type=("pdf",))
+uploaded_file = st.file_uploader(
+    "Dokument faktury",
+    type=("pdf", "jpg", "jpeg", "png", "csv"),
+)
 if uploaded_file is None:
-    st.info("Wybierz fakturę PDF o maksymalnym rozmiarze 10 MB.")
+    st.info("Wybierz fakturę PDF, JPG, PNG lub CSV o rozmiarze do 10 MB.")
     st.stop()
 
 content = uploaded_file.getvalue()
@@ -112,10 +119,14 @@ method = st.radio(
     }[item],
     horizontal=True,
 )
-if st.button("Odczytaj i przeanalizuj PDF", type="primary", use_container_width=True):
+if st.button(
+    "Odczytaj i przeanalizuj dokument",
+    type="primary",
+    use_container_width=True,
+):
     try:
         with st.spinner("Odczytywanie dokumentu..."):
-            analysis = context.document_service.process_pdf(
+            analysis = context.document_service.process_document(
                 content,
                 uploaded_file.name,
                 uploaded_file.type,
@@ -167,7 +178,7 @@ if analysis.text_result.text:
 else:
     st.info(
         "Nie znaleziono tekstu. Możesz wprowadzić dane ręcznie, ale ten dokument "
-        "prawdopodobnie wymaga OCR."
+        "nie został rozpoznany przez lokalny OCR."
     )
 
 fields = extraction.fields
@@ -313,13 +324,17 @@ with st.form("pdf_verification_form"):
             format="%.2f",
         )
     with amount_row[2]:
-        gross_amount = st.number_input(
+        gross_amount = calculate_gross_amount(net_amount, vat_amount)
+        st.number_input(
             "Kwota brutto",
             min_value=0.0,
-            value=float(fields.gross_amount or 0.0),
+            value=gross_amount,
             step=0.01,
             format="%.2f",
+            disabled=True,
+            help="Wyliczana automatycznie jako netto + VAT.",
         )
+    st.caption("Kwota brutto zostanie automatycznie przeliczona przy zapisie.")
 
     save_mode = st.radio(
         "Sposób zapisu",
@@ -365,7 +380,7 @@ if submitted:
         status=save_mode,
         net_amount=float(net_amount),
         vat_amount=float(vat_amount),
-        gross_amount=float(gross_amount),
+        gross_amount=calculate_gross_amount(net_amount, vat_amount),
         payment_status=payment_status,
     )
     try:

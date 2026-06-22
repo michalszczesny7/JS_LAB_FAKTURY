@@ -25,7 +25,7 @@ show_pending_message()
 
 try:
     context = build_app_context()
-    invoices = context.invoice_repository.list_all(include_deleted=True)
+    invoices = context.invoice_repository.list_all(include_deleted=False)
     contractors = context.lookup_service.list_contractors()
     investments = context.lookup_service.list_investments()
     categories = context.lookup_service.list_categories()
@@ -93,16 +93,57 @@ rows = prepare_invoice_rows(
 )
 
 st.caption(f"Wyniki: {len(filtered)}")
-st.dataframe(
-    rows,
+selectable_rows = [{"Wybierz": False, **row} for row in rows]
+edited_rows = st.data_editor(
+    selectable_rows,
     use_container_width=True,
     hide_index=True,
+    disabled=[column for column in selectable_rows[0] if column != "Wybierz"]
+    if selectable_rows
+    else True,
     column_config={
+        "Wybierz": st.column_config.CheckboxColumn(
+            "Wybierz",
+            help="Zaznacz faktury przeznaczone do masowego usunięcia.",
+            default=False,
+        ),
         "Netto": st.column_config.NumberColumn(format="%.2f zł"),
         "VAT": st.column_config.NumberColumn(format="%.2f zł"),
         "Brutto": st.column_config.NumberColumn(format="%.2f zł"),
     },
 )
+
+selected_rows = (
+    edited_rows.to_dict("records")
+    if hasattr(edited_rows, "to_dict")
+    else list(edited_rows)
+)
+selected_ids = [
+    int(row["ID"])
+    for row in selected_rows
+    if row.get("Wybierz") and row.get("ID") is not None
+]
+bulk_actions = st.columns((2, 1))
+with bulk_actions[0]:
+    st.caption(f"Zaznaczone faktury: {len(selected_ids)}")
+with bulk_actions[1]:
+    confirm_bulk_delete = st.checkbox(
+        "Potwierdzam masowe usunięcie",
+        disabled=not selected_ids,
+    )
+    if st.button(
+        "Usuń zaznaczone",
+        use_container_width=True,
+        disabled=not selected_ids or not confirm_bulk_delete,
+    ):
+        try:
+            deleted_count = context.invoice_service.soft_delete_invoices(selected_ids)
+            queue_success(
+                f"Oznaczono jako usunięte: {deleted_count} faktur."
+            )
+            st.rerun()
+        except Exception as error:
+            show_service_exception(error)
 
 st.subheader("Operacje")
 if not filtered:

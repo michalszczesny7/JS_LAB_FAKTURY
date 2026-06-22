@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 import streamlit as st
 
 from invoice_manager.db.init_db import initialize_database
@@ -120,8 +122,19 @@ if missing_data:
 st.divider()
 submission = render_invoice_form(contractors, investments, categories)
 if submission:
-    invoice, approve = submission
+    invoice, approve, source_upload = submission
     try:
+        if source_upload is not None:
+            stored_document = context.document_service.store_source_document(
+                source_upload.content,
+                source_upload.filename,
+                source_upload.mime_type,
+            )
+            invoice = replace(
+                invoice,
+                source_file=stored_document.relative_path,
+                file_hash=stored_document.file_hash,
+            )
         created = context.invoice_service.create_invoice(invoice, approve=approve)
         show_success(f"Faktura {created.invoice_number} została zapisana.")
     except Exception as error:

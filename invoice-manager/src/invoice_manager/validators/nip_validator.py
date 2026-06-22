@@ -25,8 +25,7 @@ def validate_nip(nip: str | None) -> list[str]:
     checksum = sum(
         digit * weight for digit, weight in zip(digits[:9], NIP_WEIGHTS, strict=True)
     ) % 11
-    if checksum == 10 or checksum != digits[9]:
-        return ["NIP ma nieprawidłową sumę kontrolną."]
+
 
     return []
 

@@ -20,6 +20,7 @@ from invoice_manager.services.document_service import (
     DocumentService,
     DocumentValidationError,
     DuplicateDocumentError,
+    sanitize_document_filename,
     sanitize_pdf_filename,
 )
 from invoice_manager.services.invoice_service import InvoiceService
@@ -50,6 +51,7 @@ def document_context(tmp_path):
 def test_filename_is_sanitized_and_path_components_are_removed():
     assert sanitize_pdf_filename("../../Faktura ąć 01.PDF") == "Faktura_ac_01.pdf"
     assert sanitize_pdf_filename("...pdf") == "document.pdf"
+    assert sanitize_document_filename("../Skan faktury.PNG") == "Skan_faktury.png"
 
 
 def test_non_pdf_upload_is_rejected(document_context):
@@ -63,7 +65,7 @@ def test_pdf_is_stored_without_overwriting(monkeypatch, document_context):
     text = "Faktura nr FV/1\nData wystawienia: 2026-06-17\nBrutto: 123,00 PLN"
     monkeypatch.setattr(
         "invoice_manager.services.document_service.extract_text_from_pdf",
-        lambda _content: PdfTextResult(text, 1, 1),
+        lambda _content, **_kwargs: PdfTextResult(text, 1, 1),
     )
     content = b"%PDF-1.4 synthetic"
 
@@ -80,7 +82,7 @@ def test_empty_text_analysis_contains_warning(monkeypatch, document_context):
     service, *_ = document_context
     monkeypatch.setattr(
         "invoice_manager.services.document_service.extract_text_from_pdf",
-        lambda _content: PdfTextResult(
+        lambda _content, **_kwargs: PdfTextResult(
             "",
             1,
             1,
@@ -103,7 +105,7 @@ def test_verified_invoice_is_linked_and_duplicate_is_blocked(
     service, invoices, contractor, investment, category = document_context
     monkeypatch.setattr(
         "invoice_manager.services.document_service.extract_text_from_pdf",
-        lambda _content: PdfTextResult("Faktura nr FV/PDF/1", 1, 1),
+        lambda _content, **_kwargs: PdfTextResult("Faktura nr FV/PDF/1", 1, 1),
     )
     analysis = service.process_pdf(
         b"%PDF-1.4 invoice",
@@ -130,3 +132,50 @@ def test_verified_invoice_is_linked_and_duplicate_is_blocked(
 
     with pytest.raises(DuplicateDocumentError, match="już istnieje"):
         service.save_verified_invoice(analysis, invoice)
+
+
+def test_manual_source_accepts_image_and_rejects_executable(document_context):
+    service, *_ = document_context
+    png_content = b"\x89PNG\r\n\x1a\nsynthetic-image"
+
+    stored = service.store_source_document(
+        png_content,
+        "../Skan faktury.png",
+        "image/png",
+    )
+
+    assert stored.stored_path.read_bytes() == png_content
+    assert stored.stored_path.suffix == ".png"
+    with pytest.raises(DocumentValidationError, match="PDF, JPG, JPEG, PNG lub CSV"):
+        service.store_source_document(b"MZ executable", "invoice.exe", "application/x-msdownload")
+
+
+def test_csv_document_is_read_and_analyzed(document_context):
+    service, *_ = document_context
+    content = (
+        "Faktura nr FV/CSV/1\nData wystawienia: 2026-06-19\n"
+        "Netto: 100,00 PLN\nVAT: 23,00 PLN\nBrutto: 123,00 PLN\n"
+    ).encode()
+
+    analysis = service.process_document(content, "invoice.csv", "text/csv")
+
+    assert analysis.fields.invoice_number == "FV/CSV/1"
+    assert analysis.fields.gross_amount == 123.0
+    assert analysis.stored_path.suffix == ".csv"
+
+
+def test_image_document_uses_ocr(monkeypatch, document_context):
+    service, *_ = document_context
+    monkeypatch.setattr(
+        "invoice_manager.services.document_service.extract_text_from_image",
+        lambda _content: "Faktura nr FV/OCR/1\nBrutto: 123,00 PLN",
+    )
+
+    analysis = service.process_document(
+        b"\xff\xd8\xffsynthetic-jpeg",
+        "invoice.jpg",
+        "image/jpeg",
+    )
+
+    assert analysis.text_result.used_ocr is True
+    assert analysis.fields.invoice_number == "FV/OCR/1"

@@ -92,3 +92,15 @@ def test_soft_delete_changes_invoice_status(invoice_context):
     assert deleted is not None
     assert deleted.status is InvoiceStatus.DELETED
     assert service.list_invoices_by_status(InvoiceStatus.DELETED) == [deleted]
+
+
+def test_soft_delete_many_changes_selected_invoices(invoice_context):
+    service, repository, invoice = invoice_context
+    first = service.create_invoice(invoice)
+    second = service.create_invoice(
+        replace(invoice, invoice_number="FV/2026/002")
+    )
+
+    assert service.soft_delete_invoices([first.id, second.id, first.id]) == 2
+    assert repository.get_by_id(first.id).status is InvoiceStatus.DELETED
+    assert repository.get_by_id(second.id).status is InvoiceStatus.DELETED

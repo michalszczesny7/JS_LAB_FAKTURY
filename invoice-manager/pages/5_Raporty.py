@@ -191,6 +191,20 @@ status_kpis[0].metric("Zatwierdzone", report.kpis.approved_count)
 status_kpis[1].metric("Odrzucone", report.kpis.rejected_count)
 status_kpis[2].metric("Usunięte", report.kpis.deleted_count)
 
+st.subheader("Wartość faktur w czasie")
+monthly_chart_rows = group_rows(report.monthly, "Miesiąc")
+if monthly_chart_rows:
+    st.bar_chart(
+        monthly_chart_rows,
+        x="Miesiąc",
+        y=("Netto", "VAT"),
+        x_label="Miesiąc",
+        y_label="Wartość [zł]",
+        use_container_width=True,
+    )
+else:
+    st.info("Brak danych do wyświetlenia wykresu.")
+
 tabs = st.tabs(
     (
         "Faktury",

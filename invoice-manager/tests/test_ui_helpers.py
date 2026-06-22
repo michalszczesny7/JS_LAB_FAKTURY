@@ -3,11 +3,17 @@
 from datetime import date
 
 from invoice_manager.models.invoice import Invoice, InvoiceStatus, InvoiceType
+from invoice_manager.ui.forms import calculate_gross_amount
 from invoice_manager.ui.tables import (
     calculate_dashboard_metrics,
     filter_invoices,
     prepare_invoice_rows,
 )
+
+
+def test_gross_amount_is_net_plus_vat_rounded_to_currency_precision():
+    assert calculate_gross_amount(100.0, 23.0) == 123.0
+    assert calculate_gross_amount(10.005, 2.004) == 12.01
 
 
 def make_invoice(

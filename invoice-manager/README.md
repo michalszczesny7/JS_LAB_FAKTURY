@@ -17,9 +17,8 @@ filtrować pozostałe statusy.
 - ręczne dodawanie, zatwierdzanie, odrzucanie i soft delete faktur,
 - kontrahenci, inwestycje, kategorie i statusy płatności,
 - dashboard kosztów, przychodów i bilansu zatwierdzonych faktur,
-- import CSV/XLSX z mapowaniem, walidacją i wykrywaniem duplikatów,
 - raporty okresowe oraz eksport CSV i wieloarkuszowego XLSX,
-- bezpieczny upload PDF z warstwą tekstową i SHA-256,
+- Import AI dla PDF, JPG, PNG i CSV z OCR oraz SHA-256,
 - lokalna ekstrakcja regex, offline demo/mock i opcjonalny adapter OpenAI,
 - ręczna korekta pól przed zapisem przez `InvoiceService`,
 - referencyjny zestaw faktur i raport jakości ekstrakcji.
@@ -140,7 +139,7 @@ OPENAI_API_KEY=
 ```
 
 Mock korzysta z lokalnych heurystyk i zwraca wynik w tym samym schemacie co
-zewnętrzny dostawca. Na stronie AI Review można też wybrać czysty regex.
+zewnętrzny dostawca. Na stronie Import AI można też wybrać czysty regex.
 
 ## Konfiguracja OpenAI API
 
@@ -155,32 +154,30 @@ OPENAI_MODEL=gpt-5-mini
 Klucz nie może trafić do repozytorium. Brak klucza powoduje bezpieczny fallback
 do demo/mock. Testy nie wykonują rzeczywistych zapytań API.
 
-## Import CSV/Excel
+## Import AI dokumentów faktur
 
-Strona Import obsługuje `.csv` i `.xlsx`. Proces obejmuje podgląd danych,
-automatyczne lub ręczne mapowanie kolumn, walidację, wykrywanie duplikatów i
-opcjonalne tworzenie brakujących kontrahentów oraz inwestycji.
-
-Gotowy plik demonstracyjny:
-
-```text
-data/sample_data/sample_invoices.csv
-```
-
-Zawiera 15 fikcyjnych faktur. Przed importem zainicjalizuj bazę, pozostaw
-automatyczne mapowanie i zaznacz tworzenie brakujących podmiotów.
-
-## AI Review PDF workflow
-
-1. Użytkownik przesyła PDF do 10 MB.
-2. Aplikacja sprawdza rozszerzenie, MIME, nagłówek i rozmiar.
-3. `pypdf` odczytuje istniejącą warstwę tekstową.
+1. Użytkownik przesyła PDF, JPG, JPEG, PNG lub CSV do 10 MB.
+2. Aplikacja sprawdza rozszerzenie, MIME, sygnaturę pliku i rozmiar.
+3. `pypdf` odczytuje warstwę tekstową PDF, a skany i obrazy przechodzą przez
+   lokalny Tesseract OCR. PDF-y są renderowane przez PyMuPDF lub Poppler.
 4. Wybrany ekstraktor proponuje pola faktury.
 5. Użytkownik poprawia dane w formularzu.
 6. `DocumentService` dołącza `source_file` i `file_hash`.
 7. `InvoiceService` uruchamia walidację i dopiero wtedy zapisuje rekord.
 
 Analiza dokumentu nigdy nie powoduje automatycznego zapisu faktury.
+
+OCR wymaga programu Tesseract z językami polskim i angielskim. Na macOS można
+go zainstalować przez Homebrew, a obraz Docker zawiera potrzebne pakiety:
+
+```bash
+brew install tesseract tesseract-lang
+python3 -m pip install -r requirements.txt
+```
+
+Przy ręcznym dodawaniu faktury można dołączyć bezpieczny plik źródłowy w jednym
+z tych samych formatów. Plik jest sanityzowany, otrzymuje fragment SHA-256 w
+nazwie, a faktura zapisuje `source_file` i `file_hash`.
 
 ## Ocena jakości ekstrakcji
 
@@ -236,7 +233,7 @@ nie stanowi kompletnej konfiguracji produkcyjnej.
 
 ## Dane demonstracyjne
 
-- `data/sample_data/sample_invoices.csv` — 15 faktur do importu,
+- `data/sample_data/sample_invoices.csv` — dane do testów importera,
 - `data/sample_data/reference_invoices/` — teksty i oczekiwane JSON-y,
 - `data/sample_data/README.md` — opis scenariuszy demonstracyjnych.
 
@@ -244,8 +241,8 @@ Wszystkie podmioty, NIP-y, numery i kwoty są fikcyjne.
 
 ## Ograniczenia projektu
 
-- OCR skanów nie jest częścią domyślnej wersji,
-- PDF workflow najlepiej działa z dokumentami zawierającymi warstwę tekstową,
+- jakość OCR zależy od rozdzielczości i czytelności skanu,
+- OCR wymaga lokalnego Tesseracta; PDF-y bez tekstu wymagają też PyMuPDF lub Popplera,
 - OpenAI API jest opcjonalne, a brak klucza uruchamia demo/mock,
 - aplikacja jest prototypem zarządzania i analizy faktur, nie pełnym systemem
   księgowym,
@@ -256,7 +253,7 @@ Wszystkie podmioty, NIP-y, numery i kwoty są fikcyjne.
 
 ## Możliwe dalsze rozszerzenia
 
-- opcjonalny OCR i referencyjne skany PDF,
+- rozszerzenie zestawu referencyjnego o skany o różnej jakości,
 - `Decimal` dla kwot oraz migracje schematu,
 - uwierzytelnianie i role użytkowników,
 - transakcyjny import wsadowy,

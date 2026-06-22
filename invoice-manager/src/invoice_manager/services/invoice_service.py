@@ -62,6 +62,21 @@ class InvoiceService:
             raise LookupError(f"Invoice {invoice_id} does not exist.")
         return self.invoice_repository.soft_delete(invoice_id)
 
+    def soft_delete_invoices(self, invoice_ids: list[int]) -> int:
+        """Soft-delete selected existing invoices and return the changed count."""
+
+        unique_ids = sorted(set(invoice_ids))
+        missing = [
+            invoice_id
+            for invoice_id in unique_ids
+            if self.invoice_repository.get_by_id(invoice_id) is None
+        ]
+        if missing:
+            raise LookupError(
+                "Nie znaleziono faktur o ID: " + ", ".join(map(str, missing))
+            )
+        return self.invoice_repository.soft_delete_many(unique_ids)
+
     def list_approved_invoices(self) -> list[Invoice]:
         return self.invoice_repository.find_by_status(InvoiceStatus.APPROVED)
 

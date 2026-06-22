@@ -31,9 +31,10 @@
 - [x] Duplikat numeru faktury dla kontrahenta.
 - [x] Czytelne komunikaty błędów w Streamlit.
 
-## AI Review
+## Import AI
 
-- [x] Upload i walidacja PDF z warstwą tekstową.
+- [x] Upload i walidacja PDF, JPG, JPEG, PNG oraz CSV.
+- [x] Lokalny OCR obrazów i skanowanych PDF-ów przez Tesseract.
 - [x] Sanityzowana nazwa, SHA-256 i brak nadpisywania dokumentów.
 - [x] Lokalny ekstraktor regex.
 - [x] Offline demo/mock bez klucza API.
@@ -43,13 +44,8 @@
 - [x] Brak automatycznego zapisu po analizie.
 - [x] Zapis wyłącznie przez `DocumentService` i `InvoiceService`.
 
-## Import/Eksport
+## Eksport
 
-- [x] Import CSV i XLSX.
-- [x] Automatyczne oraz ręczne mapowanie kolumn.
-- [x] Podgląd, walidacja i wykrywanie duplikatów.
-- [x] Opcjonalne tworzenie brakujących podmiotów.
-- [x] Raport importu.
 - [x] Raporty z filtrami i zestawieniami grupowymi.
 - [x] Eksport CSV oraz wieloarkuszowego XLSX.
 - [x] Wersjonowany plik demo z 15 fakturami.
@@ -71,7 +67,7 @@
 - [x] Instalacja i konfiguracja `.env`.
 - [x] Tryb mock i opcjonalne OpenAI.
 - [x] Opis architektury warstwowej.
-- [x] Instrukcja importu danych demonstracyjnych.
+- [x] Opis danych demonstracyjnych i referencyjnych.
 - [x] Instrukcja testów i ewaluacji.
 - [x] Ograniczenia oraz dalsze rozszerzenia.
 
@@ -94,7 +90,7 @@
 
 ## Do zrobienia opcjonalnie
 
-- [ ] OCR dla skanów PDF.
+- [ ] Ewaluacja OCR na większym zestawie skanów referencyjnych.
 - [ ] `Decimal` zamiast `float` dla kwot.
 - [ ] Migracje bazy danych.
 - [ ] Uwierzytelnianie i role użytkowników.
@@ -106,7 +102,7 @@
 
 - [ ] Zainstaluj zależności i skopiuj `.env.example` do `.env`.
 - [ ] Zainicjalizuj bazę i uruchom Streamlit.
-- [ ] Zaimportuj `data/sample_data/sample_invoices.csv`.
+- [ ] Dodaj fakturę ręcznie lub przez Import AI.
 - [ ] Pokaż Dashboard, Faktury, Raporty i eksport XLSX.
 - [ ] Przeanalizuj PDF lokalnie oraz w trybie mock.
 - [ ] Uruchom stronę Jakość Ekstrakcji.

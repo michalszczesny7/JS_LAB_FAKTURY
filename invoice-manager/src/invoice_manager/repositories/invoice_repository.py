@@ -171,6 +171,29 @@ class InvoiceRepository:
             connection.commit()
         return cursor.rowcount > 0
 
+    def soft_delete_many(self, invoice_ids: list[int]) -> int:
+        """Soft-delete multiple invoices in one transaction."""
+
+        unique_ids = sorted(set(invoice_ids))
+        if not unique_ids:
+            return 0
+        placeholders = ", ".join("?" for _ in unique_ids)
+        with database_connection(self.database_path) as connection:
+            cursor = connection.execute(
+                f"""
+                UPDATE invoices
+                SET status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id IN ({placeholders}) AND status != ?
+                """,
+                (
+                    InvoiceStatus.DELETED.value,
+                    *unique_ids,
+                    InvoiceStatus.DELETED.value,
+                ),
+            )
+            connection.commit()
+        return cursor.rowcount
+
     def find_duplicate(
         self,
         invoice_number: str,
