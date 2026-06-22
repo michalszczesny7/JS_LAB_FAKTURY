@@ -105,5 +105,5 @@
 - [ ] Dodaj fakturę ręcznie lub przez Import AI.
 - [ ] Pokaż Dashboard, Faktury, Raporty i eksport XLSX.
 - [ ] Przeanalizuj PDF lokalnie oraz w trybie mock.
-- [ ] Uruchom stronę Jakość Ekstrakcji.
+- [ ] Uruchom `scripts/evaluate_extraction.py`.
 - [ ] Uruchom testy, ewaluację i `scripts/smoke_check.py`.

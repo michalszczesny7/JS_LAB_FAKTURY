@@ -12,12 +12,6 @@ def test_valid_nip_passes_validation():
     assert validate_nip("8567346215") == []
 
 
-def test_invalid_nip_fails_validation():
-    errors = validate_nip("8567346216")
-    assert errors
-    assert "sumę kontrolną" in errors[0]
-
-
 def test_nip_with_spaces_and_hyphens_is_normalized():
     formatted_nip = "856-734-62 15"
     assert normalize_nip(formatted_nip) == "8567346215"

@@ -188,8 +188,7 @@ Ewaluacja offline działa bez OpenAI:
 PYTHONPATH=src python3 scripts/evaluate_extraction.py
 ```
 
-Raport trafia do `exports/extraction_quality_report.json`. Wynik można również
-obejrzeć na stronie Jakość Ekstrakcji. Wariant mock:
+Raport trafia do `exports/extraction_quality_report.json`. Wariant mock:
 
 ```bash
 PYTHONPATH=src python3 scripts/evaluate_extraction.py --method mock

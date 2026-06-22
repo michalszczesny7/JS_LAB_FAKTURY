@@ -69,6 +69,29 @@ def test_service_approves_valid_invoice(invoice_context):
     assert service.list_approved_invoices() == [approved]
 
 
+def test_service_updates_invoice_without_changing_id(invoice_context):
+    service, repository, invoice = invoice_context
+    created = service.create_invoice(invoice)
+    candidate = replace(
+        created,
+        invoice_number="FV/SVC/EDITED",
+        status=InvoiceStatus.NEEDS_REVIEW,
+        net_amount=300.0,
+        vat_amount=69.0,
+        gross_amount=369.0,
+        payment_status="PAID",
+    )
+
+    updated = service.update_invoice(candidate)
+
+    assert updated.id == created.id
+    assert updated.invoice_number == "FV/SVC/EDITED"
+    assert updated.status is InvoiceStatus.NEEDS_REVIEW
+    assert updated.gross_amount == 369.0
+    assert updated.payment_status == "PAID"
+    assert repository.get_by_id(created.id) == updated
+
+
 def test_service_does_not_approve_invalid_invoice(invoice_context):
     service, repository, invoice = invoice_context
     invalid = replace(invoice, gross_amount=999.0)
