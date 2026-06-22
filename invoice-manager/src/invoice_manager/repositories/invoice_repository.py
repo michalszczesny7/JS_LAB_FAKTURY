@@ -258,3 +258,23 @@ class InvoiceRepository:
         with database_connection(self.database_path) as connection:
             rows = connection.execute(query, parameters).fetchall()
         return [self._from_row(row) for row in rows]
+
+    def count_by_contractor(self, contractor_id: int) -> int:
+        """Count all invoices linked to a contractor, including deleted ones."""
+
+        with database_connection(self.database_path) as connection:
+            row = connection.execute(
+                "SELECT COUNT(*) AS count FROM invoices WHERE contractor_id = ?",
+                (contractor_id,),
+            ).fetchone()
+        return int(row["count"])
+
+    def count_by_investment(self, investment_id: int) -> int:
+        """Count all invoices linked to an investment, including deleted ones."""
+
+        with database_connection(self.database_path) as connection:
+            row = connection.execute(
+                "SELECT COUNT(*) AS count FROM invoices WHERE investment_id = ?",
+                (investment_id,),
+            ).fetchone()
+        return int(row["count"])

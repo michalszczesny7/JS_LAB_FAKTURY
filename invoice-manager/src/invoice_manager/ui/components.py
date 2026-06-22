@@ -40,7 +40,7 @@ def build_app_context(database_path: str | Path | None = None) -> AppContext:
     categories = CategoryRepository(database_path)
     validation = ValidationService(invoices, contractors, investments, categories)
     invoice_service = InvoiceService(invoices, validation)
-    lookup_service = LookupService(contractors, investments, categories)
+    lookup_service = LookupService(contractors, investments, categories, invoices)
     return AppContext(
         ai_review_service=AIReviewService(),
         document_service=DocumentService(invoices, invoice_service),

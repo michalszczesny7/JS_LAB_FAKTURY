@@ -100,6 +100,62 @@ contractors = context.lookup_service.list_contractors()
 investments = context.lookup_service.list_investments()
 categories = context.lookup_service.list_categories()
 
+with st.expander("Usuń nieużywanego kontrahenta lub inwestycję"):
+    st.caption(
+        "Można usunąć tylko rekordy, które nie są powiązane z żadną fakturą, "
+        "również miękko usuniętą."
+    )
+    delete_columns = st.columns(2)
+    with delete_columns[0]:
+        st.markdown("**Kontrahent**")
+        if contractors:
+            contractor_to_delete = st.selectbox(
+                "Wybierz kontrahenta do usunięcia",
+                contractors,
+                format_func=lambda item: item.name,
+            )
+            confirm_contractor_delete = st.checkbox(
+                "Potwierdzam usunięcie kontrahenta"
+            )
+            if st.button(
+                "Usuń kontrahenta",
+                disabled=not confirm_contractor_delete,
+                use_container_width=True,
+            ):
+                try:
+                    context.lookup_service.delete_contractor(contractor_to_delete.id)
+                    queue_success("Nieużywany kontrahent został usunięty.")
+                    st.rerun()
+                except Exception as error:
+                    show_service_exception(error)
+        else:
+            st.info("Brak kontrahentów do usunięcia.")
+
+    with delete_columns[1]:
+        st.markdown("**Inwestycja**")
+        if investments:
+            investment_to_delete = st.selectbox(
+                "Wybierz inwestycję do usunięcia",
+                investments,
+                format_func=lambda item: item.name,
+            )
+            confirm_investment_delete = st.checkbox(
+                "Potwierdzam usunięcie inwestycji"
+            )
+            if st.button(
+                "Usuń inwestycję",
+                disabled=not confirm_investment_delete,
+                use_container_width=True,
+            ):
+                try:
+                    context.lookup_service.delete_investment(investment_to_delete.id)
+                    queue_success("Nieużywana inwestycja została usunięta.")
+                    st.rerun()
+                except Exception as error:
+                    show_service_exception(error)
+        else:
+            st.info("Brak inwestycji do usunięcia.")
+
 missing_data: list[str] = []
 if not contractors:
     missing_data.append("kontrahenta")
